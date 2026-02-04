@@ -10,11 +10,12 @@ function NavBar() {
               <path d="M12 2L2 7v10l10 5 10-5V7L12 2zm0 2.18l6.9 3.45L12 11.09 5.1 7.63 12 4.18zM4 8.82l7 3.5v7.36l-7-3.5V8.82zm9 10.86v-7.36l7-3.5v7.36l-7 3.5z"/>
             </svg>
           </div>
-          <span className="text-[--navy] font-bold text-xl">nextReads</span>
+          <span className="text-[--navy] font-bold text-xl">NextReads</span>
         </Link>
 
         <div className="hidden md:flex items-center gap-8">
           <Link to="/" className="text-[--orange] font-medium">Home</Link>
+          <Link to="/discovery" className="text-[--navy] hover:text-[--orange]">Discovery</Link>
           <Link to="/my-books" className="text-[--navy] hover:text-[--orange]">My Books</Link>
           <Link to="/browse" className="text-[--navy] hover:text-[--orange]">Browse</Link>
           <Link to="/community" className="text-[--navy] hover:text-[--orange]">Community</Link>
