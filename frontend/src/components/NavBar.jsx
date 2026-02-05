@@ -17,7 +17,6 @@ function NavBar() {
           <Link to="/" className="text-[--orange] font-medium">Home</Link>
           <Link to="/discovery" className="text-[--navy] hover:text-[--orange]">Discovery</Link>
           <Link to="/my-books" className="text-[--navy] hover:text-[--orange]">My Books</Link>
-          <Link to="/browse" className="text-[--navy] hover:text-[--orange]">Browse</Link>
           <Link to="/community" className="text-[--navy] hover:text-[--orange]">Community</Link>
         </div>
 
