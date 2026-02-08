@@ -1,6 +1,9 @@
-import { Link } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 
 function NavBar() {
+  const location = useLocation()
+  const isActive = (path) => location.pathname === path
+
   return (
     <nav className="py-4 px-6">
       <div className="max-w-7xl mx-auto flex justify-between items-center">
@@ -14,10 +17,10 @@ function NavBar() {
         </Link>
 
         <div className="hidden md:flex items-center gap-8">
-          <Link to="/" className="text-[--orange] font-medium">Home</Link>
-          <Link to="/discovery" className="text-[--navy] hover:text-[--orange]">Discovery</Link>
-          <Link to="/my-books" className="text-[--navy] hover:text-[--orange]">My Books</Link>
-          <Link to="/community" className="text-[--navy] hover:text-[--orange]">Community</Link>
+          <Link to="/" className={isActive('/') ? 'text-[--orange] font-medium' : 'text-[--navy] hover:text-[--orange]'}>Home</Link>
+          <Link to="/discovery" className={isActive('/discovery') ? 'text-[--orange] font-medium' : 'text-[--navy] hover:text-[--orange]'}>Discovery</Link>
+          <Link to="/my-books" className={isActive('/my-books') ? 'text-[--orange] font-medium' : 'text-[--navy] hover:text-[--orange]'}>My Books</Link>
+          <Link to="/community" className={isActive('/community') ? 'text-[--orange] font-medium' : 'text-[--navy] hover:text-[--orange]'}>Community</Link>
         </div>
 
         <div className="flex items-center gap-4">
