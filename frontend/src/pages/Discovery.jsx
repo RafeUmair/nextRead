@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import NavBar from '../components/NavBar'
 import BookCard from '../components/BookCard'
+import { useMyBooks } from '../context/MyBooksContext'
 
 const GENRES = ['Fiction', 'Non-Fiction', 'Fantasy', 'Horror', 'Romance', 'Science Fiction', 'Literature', 'Biography']
 
@@ -23,6 +24,7 @@ const CloseIcon = () => (
 )
 
 function Discovery() {
+  const { addBook, isInMyBooks } = useMyBooks()
   const [popularBooks, setPopularBooks] = useState([])
   const [selectedBooks, setSelectedBooks] = useState([])
   const [selectedGenres, setSelectedGenres] = useState([])
@@ -161,7 +163,15 @@ function Discovery() {
             </div>
             <div className="book-grid">
               {searchResults.map((book, i) => (
-                <BookCard key={`search-${book.key}-${i}`} book={book} selected={isBookSelected(book)} onClick={() => toggleBook(book)} />
+                <BookCard
+                  key={`search-${book.key}-${i}`}
+                  book={book}
+                  selected={isBookSelected(book)}
+                  onClick={() => toggleBook(book)}
+                  showAddToLibrary={true}
+                  isInLibrary={isInMyBooks(book.key)}
+                  onAddToLibrary={(b) => addBook(b)}
+                />
               ))}
             </div>
           </div>
@@ -207,7 +217,15 @@ function Discovery() {
 
             <div className="book-grid">
               {popularBooks.map((book, i) => (
-                <BookCard key={`${book.key}-${i}`} book={book} selected={isBookSelected(book)} onClick={() => toggleBook(book)} />
+                <BookCard
+                  key={`${book.key}-${i}`}
+                  book={book}
+                  selected={isBookSelected(book)}
+                  onClick={() => toggleBook(book)}
+                  showAddToLibrary={true}
+                  isInLibrary={isInMyBooks(book.key)}
+                  onAddToLibrary={(b) => addBook(b)}
+                />
               ))}
             </div>
 
@@ -228,7 +246,16 @@ function Discovery() {
             </div>
             <div className="book-grid">
               {recommendations.map((book, i) => (
-                <BookCard key={`rec-${book.key}-${i}`} book={book} selected={false} onClick={() => {}} showBadge={false} />
+                <BookCard
+                  key={`rec-${book.key}-${i}`}
+                  book={book}
+                  selected={false}
+                  onClick={() => {}}
+                  showBadge={false}
+                  showAddToLibrary={true}
+                  isInLibrary={isInMyBooks(book.key)}
+                  onAddToLibrary={(b) => addBook(b)}
+                />
               ))}
             </div>
           </section>

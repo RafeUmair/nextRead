@@ -10,7 +10,24 @@ const PlusIcon = () => (
   </svg>
 )
 
-function BookCard({ book, selected, onClick, showBadge = true }) {
+const BookmarkIcon = () => (
+  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
+  </svg>
+)
+
+const BookmarkFilledIcon = () => (
+  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+    <path d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
+  </svg>
+)
+
+function BookCard({ book, selected, onClick, showBadge = true, showAddToLibrary = false, isInLibrary = false, onAddToLibrary }) {
+  const handleAddToLibrary = (e) => {
+    e.stopPropagation()
+    if (onAddToLibrary) onAddToLibrary(book)
+  }
+
   return (
     <div
       onClick={onClick}
@@ -20,6 +37,19 @@ function BookCard({ book, selected, onClick, showBadge = true }) {
         <div className={`select-badge ${selected ? 'active' : 'inactive'}`}>
           {selected ? <CheckIcon /> : <PlusIcon />}
         </div>
+      )}
+      {showAddToLibrary && (
+        <button
+          onClick={handleAddToLibrary}
+          className={`absolute top-2 left-2 z-10 p-2 rounded-full transition-all duration-200 ${
+            isInLibrary
+              ? 'bg-[--orange] text-white'
+              : 'bg-white/90 text-gray-600 hover:bg-[--orange] hover:text-white shadow-md'
+          }`}
+          title={isInLibrary ? 'In your library' : 'Add to My Books'}
+        >
+          {isInLibrary ? <BookmarkFilledIcon /> : <BookmarkIcon />}
+        </button>
       )}
       <div className={`book-card ${selected ? 'selected' : ''}`}>
         {book.coverUrl ? (

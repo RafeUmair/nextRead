@@ -247,3 +247,47 @@ body {
 .floating-panel.visible {
   transform: translateY(0);
 }
+
+/*Book action overlay*/
+.book-action-overlay {
+  position: absolute;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.6);
+  border-radius: 0.75rem;
+  opacity: 0;
+  transition: opacity 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.group:hover .book-action-overlay {
+  opacity: 1;
+}
+
+/*Icon buttons*/
+.icon-btn {
+  padding: 0.75rem;
+  background-color: white;
+  border-radius: 9999px;
+  box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+  transition: all 0.2s;
+  border: none;
+  cursor: pointer;
+  color: var(--navy);
+}
+
+.icon-btn:hover {
+  background-color: var(--orange);
+  color: white;
+}
+
+.icon-btn-danger {
+  color: #ef4444;
+}
+
+.icon-btn-danger:hover {
+  background-color: #ef4444;
+  color: white;
+}
