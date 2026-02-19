@@ -1,5 +1,6 @@
 
 .env
+.env.local
 credentials.json
 server/target/
 server/*.jar
@@ -8,7 +9,7 @@ server/mvnw
 server/mvnw.cmd
 *.class
 *.log
-client/node_modules/
+node_modules/
 client/.next/
 client/out/
 client/.pnp/
