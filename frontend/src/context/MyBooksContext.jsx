@@ -1,4 +1,7 @@
 import { createContext, useContext, useState, useEffect } from 'react'
+import { collection, doc, setDoc, deleteDoc, updateDoc, onSnapshot } from 'firebase/firestore'
+import { db } from '../firebase'
+import { useAuth } from './AuthContext'
 
 const MyBooksContext = createContext()
 
@@ -10,31 +13,82 @@ export const READING_STATUS = {
   FINISHED: 'finished'
 }
 
+const toDocId = (key) => key.replace(/\//g, '_')
+
 export function MyBooksProvider({ children }) {
-  const [myBooks, setMyBooks] = useState(() => {
-    const saved = localStorage.getItem(STORAGE_KEY)
-    return saved ? JSON.parse(saved) : []
-  })
+  const { user } = useAuth()
+  const [myBooks, setMyBooks] = useState([])
+  const [loading, setLoading] = useState(true)
 
+  //Subscribe to Firestore when logged in, fall back to localStorage when not
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(myBooks))
-  }, [myBooks])
+    if (!user) {
+      const saved = localStorage.getItem(STORAGE_KEY)
+      setMyBooks(saved ? JSON.parse(saved) : [])
+      setLoading(false)
+      return
+    }
 
-  const addBook = (book, status = READING_STATUS.WANT_TO_READ) => {
-    setMyBooks(prev => {
-      if (prev.some(b => b.key === book.key)) return prev
-      return [...prev, { ...book, status, addedAt: Date.now() }]
+    const booksRef = collection(db, 'users', user.uid, 'books')
+    const unsubscribe = onSnapshot(booksRef, (snapshot) => {
+      const books = snapshot.docs.map(d => d.data())
+      setMyBooks(books)
+      setLoading(false)
     })
+
+    return unsubscribe
+  }, [user])
+
+  //Persist to localStorage only when not authenticated
+  useEffect(() => {
+    if (!user) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(myBooks))
+    }
+  }, [myBooks, user])
+
+  //Migrate localStorage books to Firestore on first login
+  useEffect(() => {
+    if (!user) return
+    const saved = localStorage.getItem(STORAGE_KEY)
+    if (!saved) return
+    const localBooks = JSON.parse(saved)
+    if (localBooks.length === 0) return
+
+    Promise.all(localBooks.map(book =>
+      setDoc(doc(db, 'users', user.uid, 'books', toDocId(book.key)), book)
+    )).then(() => {
+      localStorage.removeItem(STORAGE_KEY)
+    })
+  }, [user])
+
+  const addBook = async (book, status = READING_STATUS.WANT_TO_READ) => {
+    if (myBooks.some(b => b.key === book.key)) return
+
+    const bookData = { ...book, status, addedAt: Date.now() }
+
+    if (user) {
+      await setDoc(doc(db, 'users', user.uid, 'books', toDocId(book.key)), bookData)
+    } else {
+      setMyBooks(prev => [...prev, bookData])
+    }
   }
 
-  const removeBook = (bookKey) => {
-    setMyBooks(prev => prev.filter(b => b.key !== bookKey))
+  const removeBook = async (bookKey) => {
+    if (user) {
+      await deleteDoc(doc(db, 'users', user.uid, 'books', toDocId(bookKey)))
+    } else {
+      setMyBooks(prev => prev.filter(b => b.key !== bookKey))
+    }
   }
 
-  const updateStatus = (bookKey, status) => {
-    setMyBooks(prev => prev.map(b =>
-      b.key === bookKey ? { ...b, status } : b
-    ))
+  const updateStatus = async (bookKey, status) => {
+    if (user) {
+      await updateDoc(doc(db, 'users', user.uid, 'books', toDocId(bookKey)), { status })
+    } else {
+      setMyBooks(prev => prev.map(b =>
+        b.key === bookKey ? { ...b, status } : b
+      ))
+    }
   }
 
   const isInMyBooks = (bookKey) => myBooks.some(b => b.key === bookKey)
@@ -48,7 +102,8 @@ export function MyBooksProvider({ children }) {
       removeBook,
       updateStatus,
       isInMyBooks,
-      getBooksByStatus
+      getBooksByStatus,
+      loading
     }}>
       {children}
     </MyBooksContext.Provider>
