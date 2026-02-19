@@ -1,15 +1,26 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
+import { useAuth } from '../context/AuthContext'
 import NavBar from '../components/NavBar'
 
 function ResetPassword() {
   const [email, setEmail] = useState('')
   const [submitted, setSubmitted] = useState(false)
+  const [error, setError] = useState('')
+  const [loading, setLoading] = useState(false)
+  const { resetPassword } = useAuth()
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
-    console.log('Reset password for:', email)
-    setSubmitted(true)
+    setError('')
+    setLoading(true)
+    try {
+      await resetPassword(email)
+      setSubmitted(true)
+    } catch (err) {
+      setError(err.message.replace('Firebase: ', ''))
+    }
+    setLoading(false)
   }
 
   return (
@@ -34,6 +45,12 @@ function ResetPassword() {
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="form-card">
+              {error && (
+                <div className="bg-red-50 text-red-600 text-sm p-3 rounded-lg">
+                  {error}
+                </div>
+              )}
+
               <div>
                 <label htmlFor="email" className="form-label">Email</label>
                 <input
@@ -48,8 +65,8 @@ function ResetPassword() {
                 />
               </div>
 
-              <button type="submit" className="btn btn-orange w-full rounded-lg text-lg">
-                Send Reset Link
+              <button type="submit" disabled={loading} className="btn btn-orange w-full rounded-lg text-lg">
+                {loading ? 'Sending...' : 'Send Reset Link'}
               </button>
 
               <p className="text-center text-sm" style={{ color: 'var(--text-gray)' }}>

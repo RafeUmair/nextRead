@@ -1,5 +1,6 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
+import { useAuth } from '../context/AuthContext'
 import NavBar from '../components/NavBar'
 
 function SignUp() {
@@ -8,14 +9,26 @@ function SignUp() {
     email: '',
     password: ''
   })
+  const [error, setError] = useState('')
+  const [loading, setLoading] = useState(false)
+  const { signup } = useAuth()
+  const navigate = useNavigate()
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value })
   }
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
-    console.log('Sign up:', formData)
+    setError('')
+    setLoading(true)
+    try {
+      await signup(formData.email, formData.password, formData.name)
+      navigate('/')
+    } catch (err) {
+      setError(err.message.replace('Firebase: ', ''))
+    }
+    setLoading(false)
   }
 
   return (
@@ -29,6 +42,12 @@ function SignUp() {
           </div>
 
           <form onSubmit={handleSubmit} className="form-card">
+            {error && (
+              <div className="bg-red-50 text-red-600 text-sm p-3 rounded-lg">
+                {error}
+              </div>
+            )}
+
             <div>
               <label htmlFor="name" className="form-label">Name</label>
               <input
@@ -71,8 +90,8 @@ function SignUp() {
               />
             </div>
 
-            <button type="submit" className="btn btn-orange w-full rounded-lg text-lg">
-              Sign Up
+            <button type="submit" disabled={loading} className="btn btn-orange w-full rounded-lg text-lg">
+              {loading ? 'Signing up...' : 'Sign Up'}
             </button>
 
             <p className="text-center text-sm" style={{ color: 'var(--text-gray)' }}>

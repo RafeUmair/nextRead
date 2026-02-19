@@ -1,7 +1,9 @@
 import { Link, useLocation } from 'react-router-dom'
+import { useAuth } from '../context/AuthContext'
 
 function NavBar() {
   const location = useLocation()
+  const { user, logout } = useAuth()
   const isActive = (path) => location.pathname === path
 
   return (
@@ -24,9 +26,19 @@ function NavBar() {
         </div>
 
         <div className="flex items-center gap-4">
-          <Link to="/signup" className="btn btn-orange rounded-full">Sign Up</Link>
-          <button className="text-[--navy] hover:text-[--orange]">
-          </button>
+          {user ? (
+            <>
+              <span className="text-sm text-[--navy] font-medium">{user.displayName || user.email}</span>
+              <button onClick={logout} className="text-[--navy] hover:text-[--orange] text-sm font-medium">
+                Log Out
+              </button>
+            </>
+          ) : (
+            <>
+              <Link to="/login" className="text-[--navy] hover:text-[--orange] font-medium">Log In</Link>
+              <Link to="/signup" className="btn btn-orange rounded-full">Sign Up</Link>
+            </>
+          )}
         </div>
       </div>
     </nav>

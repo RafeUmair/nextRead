@@ -5,9 +5,6 @@ import {
   signInWithEmailAndPassword,
   signOut,
   sendPasswordResetEmail,
-  GoogleAuthProvider,
-  GithubAuthProvider,
-  signInWithPopup,
   updateProfile,
 } from 'firebase/auth'
 import { doc, setDoc } from 'firebase/firestore'
@@ -45,30 +42,9 @@ export function AuthProvider({ children }) {
 
   const resetPassword = (email) => sendPasswordResetEmail(auth, email)
 
-  const loginWithGoogle = async () => {
-    const cred = await signInWithPopup(auth, new GoogleAuthProvider())
-    await setDoc(doc(db, 'users', cred.user.uid), {
-      displayName: cred.user.displayName,
-      email: cred.user.email,
-      createdAt: Date.now(),
-    }, { merge: true })
-    return cred
-  }
-
-  const loginWithGithub = async () => {
-    const cred = await signInWithPopup(auth, new GithubAuthProvider())
-    await setDoc(doc(db, 'users', cred.user.uid), {
-      displayName: cred.user.displayName,
-      email: cred.user.email,
-      createdAt: Date.now(),
-    }, { merge: true })
-    return cred
-  }
-
   return (
     <AuthContext.Provider value={{
-      user, loading, signup, login, logout,
-      resetPassword, loginWithGoogle, loginWithGithub
+      user, loading, signup, login, logout, resetPassword
     }}>
       {children}
     </AuthContext.Provider>
