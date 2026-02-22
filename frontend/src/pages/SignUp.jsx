@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import NavBar from '../components/NavBar'
 
@@ -13,6 +13,8 @@ function SignUp() {
   const [loading, setLoading] = useState(false)
   const { signup } = useAuth()
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
+  const redirect = searchParams.get('redirect') || '/'
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value })
@@ -24,7 +26,7 @@ function SignUp() {
     setLoading(true)
     try {
       await signup(formData.email, formData.password, formData.name)
-      navigate('/')
+      navigate(redirect)
     } catch (err) {
       setError(err.message.replace('Firebase: ', ''))
     }

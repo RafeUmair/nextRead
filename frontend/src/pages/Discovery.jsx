@@ -1,7 +1,9 @@
 import { useState, useEffect, useRef } from 'react'
+import { useNavigate } from 'react-router-dom'
 import NavBar from '../components/NavBar'
 import BookCard from '../components/BookCard'
 import { useMyBooks } from '../context/MyBooksContext'
+import { useAuth } from '../context/AuthContext'
 
 const GENRES = ['Fiction', 'Non-Fiction', 'Fantasy', 'Horror', 'Romance', 'Science Fiction', 'Literature', 'Biography']
 
@@ -25,6 +27,8 @@ const CloseIcon = () => (
 
 function Discovery() {
   const { addBook, isInMyBooks } = useMyBooks()
+  const { user } = useAuth()
+  const navigate = useNavigate()
   const [popularBooks, setPopularBooks] = useState([])
   const [selectedBooks, setSelectedBooks] = useState([])
   const [selectedGenres, setSelectedGenres] = useState([])
@@ -114,6 +118,14 @@ function Discovery() {
     setLoading(false)
   }
 
+  const handleAddToLibrary = (book) => {
+    if (!user) {
+      navigate('/login?redirect=/discovery')
+      return
+    }
+    addBook(book)
+  }
+
   const clearSearch = () => {
     setShowSearch(false)
     setSearchResults([])
@@ -170,7 +182,7 @@ function Discovery() {
                   onClick={() => toggleBook(book)}
                   showAddToLibrary={true}
                   isInLibrary={isInMyBooks(book.key)}
-                  onAddToLibrary={(b) => addBook(b)}
+                  onAddToLibrary={handleAddToLibrary}
                 />
               ))}
             </div>
@@ -224,7 +236,7 @@ function Discovery() {
                   onClick={() => toggleBook(book)}
                   showAddToLibrary={true}
                   isInLibrary={isInMyBooks(book.key)}
-                  onAddToLibrary={(b) => addBook(b)}
+                  onAddToLibrary={handleAddToLibrary}
                 />
               ))}
             </div>
@@ -254,7 +266,7 @@ function Discovery() {
                   showBadge={false}
                   showAddToLibrary={true}
                   isInLibrary={isInMyBooks(book.key)}
-                  onAddToLibrary={(b) => addBook(b)}
+                  onAddToLibrary={handleAddToLibrary}
                 />
               ))}
             </div>
