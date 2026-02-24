@@ -248,6 +248,75 @@ body {
   transform: translateY(0);
 }
 
+/*Book tooltip hover*/
+.book-tooltip {
+  position: absolute;
+  top: 0;
+  left: 100%;
+  z-index: 50;
+  width: 16rem;
+  padding-left: 0.5rem;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s;
+}
+
+.group:hover .book-tooltip {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.book-tooltip-inner {
+  position: relative;
+  background: white;
+  border-radius: 0.75rem;
+  box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.25);
+  border: 1px solid #f3f4f6;
+  padding: 0.75rem;
+}
+
+.book-tooltip-arrow {
+  position: absolute;
+  top: 1rem;
+  left: -6px;
+  width: 0;
+  height: 0;
+  border-top: 5px solid transparent;
+  border-bottom: 5px solid transparent;
+  border-right: 6px solid white;
+}
+
+.tooltip-tag {
+  font-size: 0.625rem;
+  background-color: var(--cream);
+  color: var(--navy);
+  padding: 0.125rem 0.375rem;
+  border-radius: 9999px;
+  border: 1px solid #e5e7eb;
+}
+
+/*Bookmark button*/
+.bookmark-btn {
+  position: absolute;
+  top: 0.5rem;
+  left: 0.5rem;
+  z-index: 10;
+  padding: 0.5rem;
+  border-radius: 9999px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s;
+  background: rgba(255, 255, 255, 0.9);
+  color: #4b5563;
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+}
+
+.bookmark-btn:hover,
+.bookmark-btn.active {
+  background-color: var(--orange);
+  color: white;
+}
+
 /*Book action overlay*/
 .book-action-overlay {
   position: absolute;

@@ -19,6 +19,12 @@ const ChevronIcon = () => (
   </svg>
 )
 
+const SparkleIcon = () => (
+  <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24">
+    <path d="M12 2l1.8 7.2L21 12l-7.2 1.8L12 22l-1.8-7.2L3 12l7.2-1.8z" />
+  </svg>
+)
+
 const CloseIcon = () => (
   <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -306,9 +312,14 @@ function Discovery() {
                   )}
                 </div>
               </div>
-              <button onClick={getRecommendations} disabled={loading || selectedBooks.length === 0} className="btn btn-orange btn-pill shadow-lg">
-                {loading ? <><div className="spinner spinner-sm border-white" /> Finding...</> : <>Find my next read <ArrowIcon /></>}
-              </button>
+              <div className="flex flex-col items-end gap-1">
+                <span className="text-[10px] text-gray-400 flex items-center gap-1">
+                  <SparkleIcon /> Powered by Groq AI
+                </span>
+                <button onClick={getRecommendations} disabled={loading || selectedBooks.length === 0} className="btn btn-orange btn-pill shadow-lg">
+                  {loading ? <><div className="spinner spinner-sm border-white" /> Finding...</> : <><SparkleIcon /> Find my next read <ArrowIcon /></>}
+                </button>
+              </div>
             </div>
           </div>
         </div>
