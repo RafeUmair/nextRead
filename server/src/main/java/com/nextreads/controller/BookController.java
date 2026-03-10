@@ -7,9 +7,9 @@ import com.nextreads.service.GroqService;
 import com.nextreads.service.PopularBooksService;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
+import java.util.Map;
 
 @RestController
-@RequestMapping("/api")
 @CrossOrigin(origins = "*")
 public class BookController {
 
@@ -23,21 +23,26 @@ public class BookController {
         this.popularBooksService = popularBooksService;
     }
 
-    @GetMapping("/search")
+    @GetMapping("/")
+    public Map<String, String> root() {
+        return Map.of("status", "ok", "service", "NextReads API");
+    }
+
+    @GetMapping("/api/search")
     public List<Book> searchBooks(
             @RequestParam String q,
             @RequestParam(defaultValue = "10") int limit) {
         return bookService.searchBooks(q, limit);
     }
 
-    @GetMapping("/popular")
+    @GetMapping("/api/popular")
     public List<Book> getPopularBooks(
             @RequestParam(required = false) List<String> genres,
             @RequestParam(defaultValue = "0") int page) {
         return popularBooksService.getPopularBooks(genres, page);
     }
 
-    @PostMapping("/recommendations")
+    @PostMapping("/api/recommendations")
     public List<Book> getRecommendations(@RequestBody RecommendationRequest request) {
         return groqService.getRecommendations(
             request.getBooks() != null ? request.getBooks() : List.of(),
