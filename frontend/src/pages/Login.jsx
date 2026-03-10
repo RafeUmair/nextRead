@@ -3,6 +3,19 @@ import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import NavBar from '../components/NavBar'
 
+const getAuthError = (err) => {
+  const messages = {
+    'auth/invalid-credential':      'Incorrect email or password.',
+    'auth/user-not-found':          'No account found with this email.',
+    'auth/wrong-password':          'Incorrect password.',
+    'auth/invalid-email':           'Please enter a valid email address.',
+    'auth/user-disabled':           'This account has been disabled.',
+    'auth/too-many-requests':       'Too many failed attempts. Try again later.',
+    'auth/network-request-failed':  'Network error. Check your connection.',
+  }
+  return messages[err.code] || 'Something went wrong. Please try again.'
+}
+
 function Login() {
   const [formData, setFormData] = useState({
     email: '',
@@ -27,7 +40,7 @@ function Login() {
       await login(formData.email, formData.password)
       navigate(redirect)
     } catch (err) {
-      setError(err.message.replace('Firebase: ', ''))
+      setError(getAuthError(err))
     }
     setLoading(false)
   }

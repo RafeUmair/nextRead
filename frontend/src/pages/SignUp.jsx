@@ -3,6 +3,18 @@ import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import NavBar from '../components/NavBar'
 
+const getAuthError = (err) => {
+  const messages = {
+    'auth/invalid-credential':      'Incorrect email or password.',
+    'auth/email-already-in-use':    'An account with this email already exists.',
+    'auth/weak-password':           'Password must be at least 6 characters.',
+    'auth/invalid-email':           'Please enter a valid email address.',
+    'auth/too-many-requests':       'Too many failed attempts. Try again later.',
+    'auth/network-request-failed':  'Network error. Check your connection.',
+  }
+  return messages[err.code] || 'Something went wrong. Please try again.'
+}
+
 function SignUp() {
   const [formData, setFormData] = useState({
     name: '',
@@ -28,7 +40,7 @@ function SignUp() {
       await signup(formData.email, formData.password, formData.name)
       navigate(redirect)
     } catch (err) {
-      setError(err.message.replace('Firebase: ', ''))
+      setError(getAuthError(err))
     }
     setLoading(false)
   }

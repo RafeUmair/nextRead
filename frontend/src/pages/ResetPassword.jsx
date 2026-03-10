@@ -3,6 +3,16 @@ import { Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import NavBar from '../components/NavBar'
 
+const getAuthError = (err) => {
+  const messages = {
+    'auth/invalid-email':           'Please enter a valid email address.',
+    'auth/user-not-found':          'No account found with this email.',
+    'auth/too-many-requests':       'Too many failed attempts. Try again later.',
+    'auth/network-request-failed':  'Network error. Check your connection.',
+  }
+  return messages[err.code] || 'Something went wrong. Please try again.'
+}
+
 function ResetPassword() {
   const [email, setEmail] = useState('')
   const [submitted, setSubmitted] = useState(false)
@@ -18,7 +28,7 @@ function ResetPassword() {
       await resetPassword(email)
       setSubmitted(true)
     } catch (err) {
-      setError(err.message.replace('Firebase: ', ''))
+      setError(getAuthError(err))
     }
     setLoading(false)
   }

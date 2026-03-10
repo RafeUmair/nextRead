@@ -61,7 +61,7 @@ function Discovery() {
     replace ? setLoadingPopular(true) : setLoadingMore(true)
     try {
       const genreParams = genres.length ? `&genres=${genres.map(g => encodeURIComponent(g)).join('&genres=')}` : ''
-      const response = await fetch(`http://localhost:8080/api/popular?page=${pageNum}${genreParams}`)
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/popular?page=${pageNum}${genreParams}`)
       const data = await response.json()
       if (replace) {
         setPopularBooks(data)
@@ -82,7 +82,7 @@ function Discovery() {
     if (!searchQuery.trim()) return
     setSearchLoading(true)
     try {
-      const response = await fetch(`http://localhost:8080/api/search?q=${encodeURIComponent(searchQuery)}&limit=12`)
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/search?q=${encodeURIComponent(searchQuery)}&limit=12`)
       setSearchResults(await response.json())
     } catch (error) {
       console.error('Search failed:', error)
@@ -108,7 +108,7 @@ function Discovery() {
     if (selectedBooks.length === 0) return
     setLoading(true)
     try {
-      const response = await fetch('http://localhost:8080/api/recommendations', {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/recommendations`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
