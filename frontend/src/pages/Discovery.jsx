@@ -186,6 +186,7 @@ function Discovery() {
                   book={book}
                   selected={isBookSelected(book)}
                   onClick={() => toggleBook(book)}
+
                   showAddToLibrary={true}
                   isInLibrary={isInMyBooks(book.key)}
                   onAddToLibrary={handleAddToLibrary}
@@ -240,6 +241,7 @@ function Discovery() {
                   book={book}
                   selected={isBookSelected(book)}
                   onClick={() => toggleBook(book)}
+
                   showAddToLibrary={true}
                   isInLibrary={isInMyBooks(book.key)}
                   onAddToLibrary={handleAddToLibrary}
@@ -269,6 +271,7 @@ function Discovery() {
                   book={book}
                   selected={false}
                   onClick={() => {}}
+
                   showBadge={false}
                   showAddToLibrary={true}
                   isInLibrary={isInMyBooks(book.key)}
@@ -326,6 +329,8 @@ function Discovery() {
       </div>
 
       {showPanel && <div className="h-24" />}
+
+
     </div>
   )
 }

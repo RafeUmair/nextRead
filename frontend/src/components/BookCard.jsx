@@ -1,4 +1,5 @@
 import { useState, useRef } from 'react'
+import { useNavigate } from 'react-router-dom'
 
 const tooltipCache = new Map()
 const DESCRIPTION_CUTOFF = 180
@@ -44,6 +45,7 @@ function StarRating({ average, count }) {
 }
 
 function BookCard({ book, selected, onClick, showBadge = true, showAddToLibrary = false, isInLibrary = false, onAddToLibrary }) {
+  const navigate = useNavigate()
   const [hasHovered, setHasHovered] = useState(false)
   const [tooltipData, setTooltipData] = useState(null)
   const [tooltipLoading, setTooltipLoading] = useState(false)
@@ -106,6 +108,12 @@ function BookCard({ book, selected, onClick, showBadge = true, showAddToLibrary 
   const toggleExpanded = (e) => {
     e.stopPropagation()
     setExpanded(v => !v)
+  }
+
+  const handleViewDetails = (e) => {
+    e.stopPropagation()
+    const workId = (book.key || '').replace('/works/', '')
+    navigate(`/book/${workId}`, { state: { book } })
   }
 
   const fullDescription = tooltipData?.fullDescription
@@ -171,14 +179,24 @@ function BookCard({ book, selected, onClick, showBadge = true, showAddToLibrary 
           {isInLibrary ? <BookmarkFilledIcon /> : <BookmarkIcon />}
         </button>
       )}
+
       <div className={`book-card ${selected ? 'selected' : ''}`}>
-        {book.coverUrl ? (
-          <img src={book.coverUrl} alt={book.title} className="book-cover" />
-        ) : (
-          <div className="book-cover-placeholder">
-            <span className="text-gray-500 text-center text-sm font-medium">{book.title}</span>
-          </div>
-        )}
+        <div className="book-cover-wrapper">
+          {book.coverUrl ? (
+            <img src={book.coverUrl} alt={book.title} className="book-cover" />
+          ) : (
+            <div className="book-cover-placeholder">
+              <span className="text-gray-500 text-center text-sm font-medium">{book.title}</span>
+            </div>
+          )}
+          <button
+            onClick={handleViewDetails}
+            className="view-details-btn"
+            title="View book page"
+          >
+            View Details
+          </button>
+        </div>
         <div className="book-info">
           <h3 className="book-title">{book.title}</h3>
           <p className="book-author">{book.author || 'Unknown'}</p>

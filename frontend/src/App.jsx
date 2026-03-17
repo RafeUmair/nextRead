@@ -10,6 +10,7 @@ import NotFound from './pages/NotFound'
 import SignUp from './pages/SignUp'
 import Login from './pages/Login'
 import ResetPassword from './pages/ResetPassword'
+import BookDetail from './pages/BookDetail'
 
 function App() {
   useEffect(() => {
@@ -29,6 +30,7 @@ function App() {
             <Route path="/signup" element={<SignUp />} />
             <Route path="/login" element={<Login />} />
             <Route path="/reset-password" element={<ResetPassword />} />
+            <Route path="/book/:workId" element={<BookDetail />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </MyBooksProvider>
