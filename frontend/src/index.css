@@ -349,6 +349,24 @@ body {
   color: white;
 }
 
+/*Server wake up banner*/
+.server-wake-banner {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.625rem;
+  padding: 0.5rem 1rem;
+  background-color: var(--navy);
+  color: white;
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
 /*Back navigation button*/
 .back-btn {
   display: inline-flex;

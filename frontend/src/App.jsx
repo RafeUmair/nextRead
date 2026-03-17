@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { AuthProvider } from './context/AuthContext'
 import { MyBooksProvider } from './context/MyBooksContext'
@@ -13,14 +13,28 @@ import ResetPassword from './pages/ResetPassword'
 import BookDetail from './pages/BookDetail'
 
 function App() {
+  const [showWakeBanner, setShowWakeBanner] = useState(false)
+
   useEffect(() => {
-    fetch(`${import.meta.env.VITE_API_URL}/`).catch(() => {})
+    let bannerTimer = setTimeout(() => setShowWakeBanner(true), 1000)
+
+    fetch(`${import.meta.env.VITE_API_URL}/`)
+      .finally(() => {
+        clearTimeout(bannerTimer)
+        setShowWakeBanner(false)
+      })
   }, [])
 
   return (
     <BrowserRouter>
       <AuthProvider>
         <MyBooksProvider>
+          {showWakeBanner && (
+            <div className="server-wake-banner">
+              <div className="spinner spinner-sm" />
+              <span>Server is starting up, this may take up to 30 seconds on first visit</span>
+            </div>
+          )}
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/discovery" element={<Discovery />} />
