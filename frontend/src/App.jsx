@@ -11,6 +11,7 @@ import SignUp from './pages/SignUp'
 import Login from './pages/Login'
 import ResetPassword from './pages/ResetPassword'
 import BookDetail from './pages/BookDetail'
+import Community from './pages/Community'
 
 function App() {
   const [showWakeBanner, setShowWakeBanner] = useState(false)
@@ -45,6 +46,7 @@ function App() {
             <Route path="/login" element={<Login />} />
             <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/book/:workId" element={<BookDetail />} />
+            <Route path="/community" element={<Community />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </MyBooksProvider>

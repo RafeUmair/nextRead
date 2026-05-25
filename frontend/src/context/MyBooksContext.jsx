@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useEffect } from 'react'
-import { collection, doc, setDoc, deleteDoc, updateDoc, onSnapshot } from 'firebase/firestore'
+import { collection, doc, setDoc, deleteDoc, updateDoc, onSnapshot, addDoc } from 'firebase/firestore'
 import { db } from '../firebase'
 import { useAuth } from './AuthContext'
 
@@ -61,6 +61,22 @@ export function MyBooksProvider({ children }) {
     })
   }, [user])
 
+  const writeActivity = async (book, action) => {
+    if (!user) return
+    await addDoc(collection(db, 'activity'), {
+      userId: user.uid,
+      userName: user.displayName || user.email.split('@')[0],
+      action,
+      book: {
+        key: book.key,
+        title: book.title,
+        author: book.author || 'Unknown',
+        coverUrl: book.coverUrl || null,
+      },
+      timestamp: Date.now(),
+    })
+  }
+
   const addBook = async (book, status = READING_STATUS.WANT_TO_READ) => {
     if (myBooks.some(b => b.key === book.key)) return
 
@@ -68,6 +84,7 @@ export function MyBooksProvider({ children }) {
 
     if (user) {
       await setDoc(doc(db, 'users', user.uid, 'books', toDocId(book.key)), bookData)
+      await writeActivity(book, status)
     } else {
       setMyBooks(prev => [...prev, bookData])
     }
@@ -84,6 +101,8 @@ export function MyBooksProvider({ children }) {
   const updateStatus = async (bookKey, status) => {
     if (user) {
       await updateDoc(doc(db, 'users', user.uid, 'books', toDocId(bookKey)), { status })
+      const book = myBooks.find(b => b.key === bookKey)
+      if (book) await writeActivity(book, status)
     } else {
       setMyBooks(prev => prev.map(b =>
         b.key === bookKey ? { ...b, status } : b
