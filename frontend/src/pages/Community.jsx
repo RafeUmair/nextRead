@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react'
-import { collection, query, orderBy, limit, onSnapshot } from 'firebase/firestore'
+import { collection, query, orderBy, limit, onSnapshot, deleteDoc, doc } from 'firebase/firestore'
 import { db } from '../firebase'
 import NavBar from '../components/NavBar'
+import { useAuth } from '../context/AuthContext'
 
 const ACTION_TEXT = {
   want_to_read: 'wants to read',
@@ -33,8 +34,19 @@ function avatarColor(name = '') {
   return AVATAR_COLORS[Math.abs(hash) % AVATAR_COLORS.length]
 }
 
-function ActivityCard({ event }) {
+const TrashIcon = () => (
+  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+  </svg>
+)
+
+function ActivityCard({ event, isAdmin }) {
   const actionText = ACTION_TEXT[event.action] || event.action
+
+  const handleDelete = async () => {
+    if (!window.confirm('Delete this activity post?')) return
+    await deleteDoc(doc(db, 'activity', event.id))
+  }
 
   return (
     <div className="bg-white rounded-2xl p-5 shadow-sm hover:shadow-md transition-shadow flex gap-4 max-w-xl">
@@ -46,10 +58,21 @@ function ActivityCard({ event }) {
       </div>
 
       <div className="flex-1 min-w-0">
-        <p className="text-sm mb-2">
-          <span className="font-bold text-[--navy]">{event.userName}</span>
-          {' '}<span style={{ color: 'var(--text-gray)' }}>{actionText}</span>
-        </p>
+        <div className="flex items-start justify-between gap-2 mb-2">
+          <p className="text-sm">
+            <span className="font-bold text-[--navy]">{event.userName}</span>
+            {' '}<span style={{ color: 'var(--text-gray)' }}>{actionText}</span>
+          </p>
+          {isAdmin && (
+            <button
+              onClick={handleDelete}
+              className="flex-shrink-0 p-1.5 rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-50 transition-colors"
+              title="Delete post (Admin)"
+            >
+              <TrashIcon />
+            </button>
+          )}
+        </div>
 
         <div className="flex items-center gap-3 bg-[--cream] rounded-lg px-3 py-2 mb-2">
           {event.book.coverUrl ? (
@@ -74,6 +97,7 @@ function ActivityCard({ event }) {
 }
 
 function Community() {
+  const { isAdmin } = useAuth()
   const [events, setEvents] = useState([])
   const [loading, setLoading] = useState(true)
 
@@ -89,7 +113,14 @@ function Community() {
     <div className="min-h-screen bg-[--cream]">
       <NavBar />
       <main className="container-main py-12">
-        <h1 className="text-3xl font-bold text-[--navy]">Community</h1>
+        <div className="flex items-center gap-3 mb-1">
+          <h1 className="text-3xl font-bold text-[--navy]">Community</h1>
+          {isAdmin && (
+            <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-[--navy] text-white tracking-wide">
+              ADMIN
+            </span>
+          )}
+        </div>
         <p className="mt-1 mb-8" style={{ color: 'var(--text-gray)' }}>
           See what readers around the world are exploring
         </p>
@@ -105,7 +136,9 @@ function Community() {
           </div>
         ) : (
           <div className="flex flex-col gap-3">
-            {events.map(event => <ActivityCard key={event.id} event={event} />)}
+            {events.map(event => (
+              <ActivityCard key={event.id} event={event} isAdmin={isAdmin} />
+            ))}
           </div>
         )}
       </main>

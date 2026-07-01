@@ -7,18 +7,25 @@ import {
   sendPasswordResetEmail,
   updateProfile,
 } from 'firebase/auth'
-import { doc, setDoc } from 'firebase/firestore'
+import { doc, setDoc, getDoc } from 'firebase/firestore'
 import { auth, db } from '../firebase'
 
 const AuthContext = createContext()
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null)
+  const [isAdmin, setIsAdmin] = useState(false)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      setUser(user)
+    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+      setUser(firebaseUser)
+      if (firebaseUser) {
+        const snap = await getDoc(doc(db, 'users', firebaseUser.uid))
+        setIsAdmin(snap.exists() && snap.data().role === 'admin')
+      } else {
+        setIsAdmin(false)
+      }
       setLoading(false)
     })
     return unsubscribe
@@ -30,6 +37,7 @@ export function AuthProvider({ children }) {
     await setDoc(doc(db, 'users', cred.user.uid), {
       displayName: name,
       email: email,
+      role: 'user',
       createdAt: Date.now(),
     })
     return cred
@@ -44,7 +52,7 @@ export function AuthProvider({ children }) {
 
   return (
     <AuthContext.Provider value={{
-      user, loading, signup, login, logout, resetPassword
+      user, isAdmin, loading, signup, login, logout, resetPassword
     }}>
       {children}
     </AuthContext.Provider>
