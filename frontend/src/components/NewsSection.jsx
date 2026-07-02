@@ -33,19 +33,35 @@ function formatDate(dateStr) {
   }
 }
 
+const PAGE_SIZE = 20
+
 function NewsSection() {
   const [articles, setArticles] = useState([])
   const [loading, setLoading] = useState(true)
+  const [loadingMore, setLoadingMore] = useState(false)
   const [error, setError] = useState(false)
+  const [hasMore, setHasMore] = useState(false)
   const [activeSource, setActiveSource] = useState('All')
   const [newestFirst, setNewestFirst] = useState(true)
 
   useEffect(() => {
-    fetch(`${import.meta.env.VITE_API_URL}/api/news?limit=20`)
+    fetch(`${import.meta.env.VITE_API_URL}/api/news?offset=0&limit=${PAGE_SIZE}`)
       .then(r => { if (!r.ok) throw new Error(r.status); return r.json() })
-      .then(data => { setArticles(data); setLoading(false) })
+      .then(data => { setArticles(data.items); setHasMore(data.hasMore); setLoading(false) })
       .catch(() => { setError(true); setLoading(false) })
   }, [])
+
+  const loadMore = () => {
+    setLoadingMore(true)
+    fetch(`${import.meta.env.VITE_API_URL}/api/news?offset=${articles.length}&limit=${PAGE_SIZE}`)
+      .then(r => { if (!r.ok) throw new Error(r.status); return r.json() })
+      .then(data => {
+        setArticles(prev => [...prev, ...data.items])
+        setHasMore(data.hasMore)
+        setLoadingMore(false)
+      })
+      .catch(() => setLoadingMore(false))
+  }
 
   const sources = useMemo(() => ['All', ...new Set(articles.map(a => a.source))], [articles])
 
@@ -105,11 +121,25 @@ function NewsSection() {
       ) : displayed.length === 0 ? (
         <p className="text-sm" style={{ color: 'var(--text-gray)' }}>No articles found.</p>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {displayed.map((article, i) => (
-            <NewsCard key={i} article={article} />
-          ))}
-        </div>
+        <>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {displayed.map(article => (
+              <NewsCard key={article.link} article={article} />
+            ))}
+          </div>
+          {hasMore && (
+            <div className="flex justify-center mt-6">
+              <button
+                onClick={loadMore}
+                disabled={loadingMore}
+                className="text-sm font-medium px-4 py-2 rounded-lg bg-white shadow-sm border border-gray-200 hover:border-orange transition-colors disabled:opacity-50"
+                style={{ color: 'var(--navy)' }}
+              >
+                {loadingMore ? 'Loading…' : 'More'}
+              </button>
+            </div>
+          )}
+        </>
       )}
     </section>
   )
