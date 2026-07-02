@@ -12,9 +12,16 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Duration;
+import java.time.Instant;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.locks.ReentrantLock;
 
 @Service
 public class NewsService {
@@ -28,21 +35,73 @@ public class NewsService {
         new Feed("https://www.themarginalian.org/feed/",       "The Marginalian")
     );
 
+    private static final Duration CACHE_TTL = Duration.ofMinutes(10);
+
     private final HttpClient httpClient = HttpClient.newBuilder()
         .connectTimeout(Duration.ofSeconds(8))
         .build();
 
-    public List<Map<String, String>> getLatestNews(int limit) {
-        List<Map<String, String>> articles = new ArrayList<>();
-        for (Feed feed : RSS_FEEDS) {
-            try {
-                articles.addAll(fetchFeed(feed));
-            } catch (Exception ignored) {}
+    private final ExecutorService feedExecutor = Executors.newFixedThreadPool(RSS_FEEDS.size());
+    private final ReentrantLock cacheLock = new ReentrantLock();
+
+    private volatile List<Map<String, String>> cachedArticles = List.of();
+    private volatile Instant cacheFetchedAt = Instant.EPOCH;
+
+    public Map<String, Object> getLatestNews(int offset, int limit) {
+        List<Map<String, String>> all = getCachedArticles();
+        int from = Math.min(Math.max(offset, 0), all.size());
+        int to = Math.min(from + Math.max(limit, 0), all.size());
+        return Map.of(
+            "items", all.subList(from, to),
+            "hasMore", to < all.size(),
+            "total", all.size()
+        );
+    }
+
+    private List<Map<String, String>> getCachedArticles() {
+        if (Duration.between(cacheFetchedAt, Instant.now()).compareTo(CACHE_TTL) < 0) {
+            return cachedArticles;
         }
-        return articles.stream()
-            .sorted((a, b) -> b.getOrDefault("pubDate", "").compareTo(a.getOrDefault("pubDate", "")))
-            .limit(limit)
+        cacheLock.lock();
+        try {
+            if (Duration.between(cacheFetchedAt, Instant.now()).compareTo(CACHE_TTL) < 0) {
+                return cachedArticles;
+            }
+            cachedArticles = fetchAllFeeds();
+            cacheFetchedAt = Instant.now();
+            return cachedArticles;
+        } finally {
+            cacheLock.unlock();
+        }
+    }
+
+    private List<Map<String, String>> fetchAllFeeds() {
+        List<CompletableFuture<List<Map<String, String>>>> futures = RSS_FEEDS.stream()
+            .map(feed -> CompletableFuture.supplyAsync(() -> {
+                try {
+                    return fetchFeed(feed);
+                } catch (Exception e) {
+                    return List.<Map<String, String>>of();
+                }
+            }, feedExecutor))
             .toList();
+
+        List<Map<String, String>> articles = new ArrayList<>();
+        for (CompletableFuture<List<Map<String, String>>> future : futures) {
+            articles.addAll(future.join());
+        }
+
+        return articles.stream()
+            .sorted(Comparator.comparing(this::parseDate).reversed())
+            .toList();
+    }
+
+    private Instant parseDate(Map<String, String> article) {
+        try {
+            return DateTimeFormatter.RFC_1123_DATE_TIME.parse(article.get("pubDate"), Instant::from);
+        } catch (Exception e) {
+            return Instant.EPOCH;
+        }
     }
 
     private List<Map<String, String>> fetchFeed(Feed feed) throws Exception {
