@@ -21,8 +21,12 @@ export function AuthProvider({ children }) {
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       setUser(firebaseUser)
       if (firebaseUser) {
-        const snap = await getDoc(doc(db, 'users', firebaseUser.uid))
-        setIsAdmin(snap.exists() && snap.data().role === 'admin')
+        try {
+          const snap = await getDoc(doc(db, 'users', firebaseUser.uid))
+          setIsAdmin(snap.exists() && snap.data().role === 'admin')
+        } catch {
+          setIsAdmin(false)
+        }
       } else {
         setIsAdmin(false)
       }
