@@ -23,6 +23,9 @@ function NavBar() {
           <Link to="/discovery" className={isActive('/discovery') ? 'text-[--orange] font-medium' : 'text-[--navy] hover:text-[--orange]'}>Discovery</Link>
           <Link to="/my-books" className={isActive('/my-books') ? 'text-[--orange] font-medium' : 'text-[--navy] hover:text-[--orange]'}>My Books</Link>
           <Link to="/community" className={isActive('/community') ? 'text-[--orange] font-medium' : 'text-[--navy] hover:text-[--orange]'}>Community</Link>
+          <Link to="/chat" className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium transition-all ${isActive('/chat') ? 'bg-[--orange] text-white' : 'bg-[--navy] text-white hover:bg-[--orange]'}`}>
+            ✦ Ask AI
+          </Link>
         </div>
 
         <div className="flex items-center gap-4">

@@ -12,6 +12,35 @@ import Login from './pages/Login'
 import ResetPassword from './pages/ResetPassword'
 import BookDetail from './pages/BookDetail'
 import Community from './pages/Community'
+import Chat from './pages/Chat'
+
+function WakeBanner() {
+  const [progress, setProgress] = useState(0)
+
+  useEffect(() => {
+    const start = Date.now()
+    const tick = setInterval(() => {
+      const elapsed = (Date.now() - start) / 45000
+      setProgress(Math.min(elapsed * 100, 92))
+    }, 300)
+    return () => clearInterval(tick)
+  }, [])
+
+  return (
+    <div className="server-wake-banner flex-col gap-1 py-3">
+      <div className="flex items-center gap-2">
+        <div className="spinner spinner-sm" />
+        <span>Waking up the server — this only happens on the first visit</span>
+      </div>
+      <div className="w-48 h-1 bg-white/20 rounded-full overflow-hidden">
+        <div
+          className="h-full bg-white rounded-full transition-all duration-300"
+          style={{ width: `${progress}%` }}
+        />
+      </div>
+    </div>
+  )
+}
 
 function App() {
   const [showWakeBanner, setShowWakeBanner] = useState(false)
@@ -30,12 +59,7 @@ function App() {
     <BrowserRouter>
       <AuthProvider>
         <MyBooksProvider>
-          {showWakeBanner && (
-            <div className="server-wake-banner">
-              <div className="spinner spinner-sm" />
-              <span>Server is starting up, this may take up to 30 seconds on first visit</span>
-            </div>
-          )}
+          {showWakeBanner && <WakeBanner />}
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/discovery" element={<Discovery />} />
@@ -47,6 +71,7 @@ function App() {
             <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/book/:workId" element={<BookDetail />} />
             <Route path="/community" element={<Community />} />
+            <Route path="/chat" element={<Chat />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </MyBooksProvider>
