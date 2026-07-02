@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -19,9 +20,8 @@ public class NewsController {
     }
 
     @GetMapping("/api/news")
-    public Map<String, Object> getNews(
-            @RequestParam(defaultValue = "0") int offset,
+    public List<Map<String, String>> getNews(
             @RequestParam(defaultValue = "20") int limit) {
-        return newsService.getLatestNews(offset, limit);
+        return newsService.getLatestNews(limit);
     }
 }
