@@ -133,6 +133,27 @@ function PlaylistPicker({ book, open, onClose }) {
 }
 
 
+function ConfirmDialog({ book, onCancel, onConfirm }) {
+  return (
+    <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50" onClick={onCancel}>
+      <div className="bg-white rounded-2xl p-6 shadow-xl max-w-xs w-full mx-4" onClick={e => e.stopPropagation()}>
+        <h3 className="font-semibold text-[--navy] mb-1">Remove this book?</h3>
+        <p className="text-sm text-gray-400 mb-6">
+          <span className="font-medium text-[--navy]">{book.title}</span> will be removed from your library. You can always add it back later.
+        </p>
+        <div className="flex gap-3">
+          <button onClick={onCancel} className="flex-1 py-2 rounded-xl border border-gray-200 text-sm text-gray-600 hover:bg-gray-50 transition-colors">
+            Cancel
+          </button>
+          <button onClick={onConfirm} className="flex-1 py-2 rounded-xl bg-red-500 text-white text-sm font-medium hover:bg-red-600 transition-colors">
+            Remove
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 function PlaylistsTab() {
   const { playlists, loading, createPlaylist, deletePlaylist, removeBookFromPlaylist } = usePlaylists()
   const { addBook, isInMyBooks } = useMyBooks()
@@ -306,17 +327,26 @@ function PlaylistsTab() {
 }
 
 function MyBooks() {
-  const { getBooksByStatus, updateStatus, removeBook } = useMyBooks()
+  const { getBooksByStatus, updateStatus, removeBook, myBooks } = useMyBooks()
   const [activeTab, setActiveTab] = useState(READING_STATUS.CURRENTLY_READING)
   const [openPickerFor, setOpenPickerFor] = useState(null)
+  const [confirmKey, setConfirmKey] = useState(null)
 
   const isPlaylistTab = activeTab === 'playlists'
   const books = isPlaylistTab ? [] : getBooksByStatus(activeTab)
   const otherStatuses = Object.keys(STATUS_CONFIG).filter(k => k !== activeTab)
+  const confirmBook = myBooks.find(b => b.key === confirmKey)
 
   return (
     <div className="min-h-screen bg-[--cream]">
       <NavBar />
+      {confirmBook && (
+        <ConfirmDialog
+          book={confirmBook}
+          onCancel={() => setConfirmKey(null)}
+          onConfirm={() => { removeBook(confirmKey); setConfirmKey(null) }}
+        />
+      )}
 
       <main className="container-main py-12">
         <h1 className="text-3xl font-bold text-[--navy] mb-8">My Books</h1>
@@ -383,7 +413,7 @@ function MyBooks() {
                     <ListIcon />
                   </button>
                   <button
-                    onClick={() => removeBook(book.key)}
+                    onClick={() => setConfirmKey(book.key)}
                     className="icon-btn icon-btn-danger"
                     title="Remove from library"
                   >
