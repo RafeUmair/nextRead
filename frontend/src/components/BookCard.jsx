@@ -1,5 +1,6 @@
 import { useState, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
+import PlaylistDropdown from './PlaylistDropdown'
 
 const tooltipCache = new Map()
 const DESCRIPTION_CUTOFF = 180
@@ -44,7 +45,7 @@ function StarRating({ average, count }) {
   )
 }
 
-function BookCard({ book, selected, onClick, showBadge = true, showAddToLibrary = false, isInLibrary = false, onAddToLibrary }) {
+function BookCard({ book, selected, onClick, showBadge = true, showAddToLibrary = false, isInLibrary = false, onAddToLibrary, showPlaylistBtn = false }) {
   const navigate = useNavigate()
   const [hasHovered, setHasHovered] = useState(false)
   const [tooltipData, setTooltipData] = useState(null)
@@ -179,6 +180,7 @@ function BookCard({ book, selected, onClick, showBadge = true, showAddToLibrary 
           {isInLibrary ? <BookmarkFilledIcon /> : <BookmarkIcon />}
         </button>
       )}
+      {showPlaylistBtn && <PlaylistDropdown book={book} />}
 
       <div className={`book-card ${selected ? 'selected' : ''}`}>
         <div className="book-cover-wrapper">

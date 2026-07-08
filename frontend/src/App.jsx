@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { AuthProvider } from './context/AuthContext'
 import { MyBooksProvider } from './context/MyBooksContext'
+import { PlaylistProvider } from './context/PlaylistContext'
 import ProtectedRoute from './components/ProtectedRoute'
 import Home from './pages/Home'
 import Discovery from './pages/Discovery'
@@ -59,6 +60,7 @@ function App() {
     <BrowserRouter>
       <AuthProvider>
         <MyBooksProvider>
+          <PlaylistProvider>
           {showWakeBanner && <WakeBanner />}
           <Routes>
             <Route path="/" element={<Home />} />
@@ -74,6 +76,7 @@ function App() {
             <Route path="/chat" element={<Chat />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
+          </PlaylistProvider>
         </MyBooksProvider>
       </AuthProvider>
     </BrowserRouter>

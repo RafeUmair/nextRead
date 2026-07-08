@@ -73,6 +73,7 @@ function Message({ msg, onAddToLibrary }) {
                 showAddToLibrary={true}
                 isInLibrary={isInMyBooks(book.key)}
                 onAddToLibrary={onAddToLibrary}
+                showPlaylistBtn={true}
               />
             ))}
           </div>
