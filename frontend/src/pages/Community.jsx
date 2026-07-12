@@ -96,6 +96,36 @@ function ActivityCard({ event, isAdmin }) {
   )
 }
 
+function ActiveReadersSidebar({ events }) {
+  const seen = new Set()
+  const readers = events.filter(e => {
+    if (seen.has(e.userId)) return false
+    seen.add(e.userId)
+    return true
+  })
+
+  return (
+    <div className="bg-white rounded-2xl p-4 shadow-sm sticky top-6">
+      <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3">
+        Active Readers · {readers.length}
+      </p>
+      <div className="flex flex-col gap-2">
+        {readers.map(r => (
+          <div key={r.userId} className="flex items-center gap-2.5">
+            <div
+              className="w-8 h-8 rounded-full flex-shrink-0 flex items-center justify-center text-white text-xs font-bold"
+              style={{ backgroundColor: avatarColor(r.userName) }}
+            >
+              {getInitials(r.userName)}
+            </div>
+            <span className="text-sm text-[--navy] font-medium truncate">{r.userName}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
 function Community() {
   const { isAdmin } = useAuth()
   const [events, setEvents] = useState([])
@@ -135,10 +165,15 @@ function Community() {
             <p style={{ color: 'var(--text-gray)' }}>Be the first — add a book to your library.</p>
           </div>
         ) : (
-          <div className="flex flex-col gap-3">
-            {events.map(event => (
-              <ActivityCard key={event.id} event={event} isAdmin={isAdmin} />
-            ))}
+          <div className="flex gap-8 items-start">
+            <div className="flex-1 flex flex-col gap-3 min-w-0">
+              {events.map(event => (
+                <ActivityCard key={event.id} event={event} isAdmin={isAdmin} />
+              ))}
+            </div>
+            <div className="hidden lg:block w-56 flex-shrink-0">
+              <ActiveReadersSidebar events={events} />
+            </div>
           </div>
         )}
       </main>
